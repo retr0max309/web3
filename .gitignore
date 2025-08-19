@@ -1,3 +1,6 @@
+# --------------------------------------
+# Archivos generales de compilación
+# --------------------------------------
 # Prerequisites
 *.d
 
@@ -41,6 +44,7 @@
 *.su
 *.idb
 *.pdb
+*.dwo
 
 # Kernel Module Compile Results
 *.mod*
@@ -51,5 +55,49 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# debug information files
-*.dwo
+# --------------------------------------
+# Visual Studio / .NET
+# --------------------------------------
+
+# Carpeta del IDE
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Compilación de proyectos
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+out/
+
+# Archivos de test y cobertura
+*.coverage
+*.coveragexml
+TestResults/
+
+# Paquetes NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Archivos temporales y cache
+*.tmp
+*.temp
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# Configuración local (no subir a GitHub)
+appsettings.Development.json
+launchSettings.json
+
+# Otros caches
+_ReSharper*/
+*.ncrunch*
+*.Local.json
