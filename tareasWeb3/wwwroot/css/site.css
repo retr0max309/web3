@@ -16,3 +16,21 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* estilos para vista pequena */
+.tabla-pequena {
+    font-size: 12px;
+    padding: 4px;
+}
+
+/* estilos para vista mediana */
+.tabla-mediana {
+    font-size: 16px;
+    padding: 8px;
+}
+
+/* estilos para vista grande */
+.tabla-grande {
+    font-size: 20px;
+    padding: 12px;
+}

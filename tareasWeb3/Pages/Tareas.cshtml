@@ -1,0 +1,154 @@
+﻿@page
+@model tareasWeb3.Pages.TareasModel
+@{
+    ViewData["Title"] = "Tareas Asignadas";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 bg-dark text-white vh-100">
+            <h4 class="p-3">MP MiPanel</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-page="/Index"><i class="bi bi-house-door"></i> Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-page="/TareasFinalizadas"><i class="bi bi-check2-circle"></i> Tareas Finalizadas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-page="/TareasCanceladas"><i class="bi bi-x-circle"></i> Tareas Canceladas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-page="/Privacy"><i class="bi bi-lock"></i> Privacidad</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0">Tareas Asignadas</h3>
+
+                <!-- selector de tamano sin C# en option -->
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="FilterEstado" value="@Model.FilterEstado" />
+                    <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+
+                    <label class="form-label mb-0">Tamaño</label>
+                    <select asp-for="SelectedSize"
+                            name="SelectedSize"
+                            class="form-select form-select-sm w-auto"
+                            onchange="this.form.submit()">
+                        <option value="s">Pequeño</option>
+                        <option value="m">Mediano</option>
+                        <option value="l">Grande</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- filtro por estado -->
+            <form method="get" class="row g-3 mb-3">
+                <input type="hidden" name="SelectedSize" value="@Model.SelectedSize" />
+                <input type="hidden" name="pageNumber" value="1" />
+
+                <div class="col-sm-4">
+                    <label class="form-label">Estado</label>
+                    <select asp-for="FilterEstado" name="FilterEstado" class="form-select">
+                        <option value="todos">Todos</option>
+                        @foreach (var e in Model.Estados)
+                        {
+                            <option value="@e">@e</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-sm-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </form>
+
+            <!-- tabla -->
+            <table class="table table-bordered table-striped mt-2 @Model.TableSizeClass">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre Tarea</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Tareas != null && Model.Tareas.Any())
+                    {
+                        foreach (var tarea in Model.Tareas)
+                        {
+                            <tr>
+                                <td>@tarea.NombreTarea</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(tarea.FechaVencimiento))
+                                    {
+                                        @tarea.FechaVencimiento
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Sin fecha</span>
+                                    }
+                                </td>
+                                <td>@tarea.Estado</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-primary">Editar</a>
+                                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No hay tareas registradas</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- paginacion -->
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-page="/Tareas"
+                           asp-route-pageNumber="@(Model.PageNumber - 1)"
+                           asp-route-SelectedSize="@Model.SelectedSize"
+                           asp-route-FilterEstado="@Model.FilterEstado">
+                            Anterior
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link"
+                               asp-page="/Tareas"
+                               asp-route-pageNumber="@i"
+                               asp-route-SelectedSize="@Model.SelectedSize"
+                               asp-route-FilterEstado="@Model.FilterEstado">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-page="/Tareas"
+                           asp-route-pageNumber="@(Model.PageNumber + 1)"
+                           asp-route-SelectedSize="@Model.SelectedSize"
+                           asp-route-FilterEstado="@Model.FilterEstado">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</div>
