@@ -29,21 +29,35 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0">Tareas Asignadas</h3>
 
-                <!-- selector de tamano sin C# en option -->
-                <form method="get" class="d-flex align-items-center gap-2">
-                    <input type="hidden" name="FilterEstado" value="@Model.FilterEstado" />
-                    <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                <!-- Contenedor derecho: selector de tamaño + botón Crear -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- selector de tamano sin C# en option -->
+                    <form method="get" class="d-flex align-items-center gap-2">
+                        <input type="hidden" name="FilterEstado" value="@Model.FilterEstado" />
+                        <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                        <input type="hidden" name="Q" value="@Model.Q" />
 
-                    <label class="form-label mb-0">Tamaño</label>
-                    <select asp-for="SelectedSize"
-                            name="SelectedSize"
-                            class="form-select form-select-sm w-auto"
-                            onchange="this.form.submit()">
-                        <option value="s">Pequeño</option>
-                        <option value="m">Mediano</option>
-                        <option value="l">Grande</option>
-                    </select>
-                </form>
+                        <label class="form-label mb-0">Tamaño</label>
+                        <select asp-for="SelectedSize"
+                                name="SelectedSize"
+                                class="form-select form-select-sm w-auto"
+                                onchange="this.form.submit()">
+                            <option value="s">Pequeño</option>
+                            <option value="m">Mediano</option>
+                            <option value="l">Grande</option>
+                        </select>
+                    </form>
+
+                    <!-- BOTÓN CREAR TAREA -->
+                    <button class="btn btn-primary d-flex align-items-center gap-2"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#ocNuevaTarea"
+                            aria-controls="ocNuevaTarea">
+                        <i class="bi bi-plus-circle"></i>
+                        Crear tarea
+                    </button>
+                </div>
             </div>
 
             <!-- filtro por estado -->
@@ -60,6 +74,11 @@
                             <option value="@e">@e</option>
                         }
                     </select>
+                </div>
+
+                <div class="col-sm-4">
+                    <label class="form-label">Buscar</label>
+                    <input name="Q" value="@Model.Q" class="form-control" placeholder="Nombre de la tarea..." />
                 </div>
 
                 <div class="col-sm-2 d-flex align-items-end">
@@ -119,7 +138,8 @@
                            asp-page="/Tareas"
                            asp-route-pageNumber="@(Model.PageNumber - 1)"
                            asp-route-SelectedSize="@Model.SelectedSize"
-                           asp-route-FilterEstado="@Model.FilterEstado">
+                           asp-route-FilterEstado="@Model.FilterEstado"
+                           asp-route-Q="@Model.Q">
                             Anterior
                         </a>
                     </li>
@@ -131,7 +151,8 @@
                                asp-page="/Tareas"
                                asp-route-pageNumber="@i"
                                asp-route-SelectedSize="@Model.SelectedSize"
-                               asp-route-FilterEstado="@Model.FilterEstado">
+                               asp-route-FilterEstado="@Model.FilterEstado"
+                               asp-route-Q="@Model.Q">
                                 @i
                             </a>
                         </li>
@@ -142,7 +163,8 @@
                            asp-page="/Tareas"
                            asp-route-pageNumber="@(Model.PageNumber + 1)"
                            asp-route-SelectedSize="@Model.SelectedSize"
-                           asp-route-FilterEstado="@Model.FilterEstado">
+                           asp-route-FilterEstado="@Model.FilterEstado"
+                           asp-route-Q="@Model.Q">
                             Siguiente
                         </a>
                     </li>
@@ -152,3 +174,48 @@
         </div>
     </div>
 </div>
+
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="ocNuevaTarea" aria-labelledby="ocNuevaTareaLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="ocNuevaTareaLabel">Nueva tarea</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <form method="post" asp-page-handler="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="NuevaTarea.NombreTarea" class="form-label">Nombre</label>
+                <input asp-for="NuevaTarea.NombreTarea" class="form-control" />
+                <span asp-validation-for="NuevaTarea.NombreTarea" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NuevaTarea.Fecha" class="form-label">Fecha de vencimiento</label>
+                <input asp-for="NuevaTarea.Fecha" type="date" class="form-control" />
+                <span asp-validation-for="NuevaTarea.Fecha" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NuevaTarea.Estado" class="form-label">Estado</label>
+                <select asp-for="NuevaTarea.Estado" class="form-select">
+                    <option value="">-- Selecciona --</option>
+                    <option>Pendiente</option>
+                    <option>En curso</option>
+                    <option>Finalizado</option>
+                    <option>Cancelado</option>
+                </select>
+                <span asp-validation-for="NuevaTarea.Estado" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cerrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+

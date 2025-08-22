@@ -1,6 +1,6 @@
 ﻿namespace tareasWeb3.Models
 {
-    // modelo simple para mapear tu json
+    
     public class Tarea
     {
         public string NombreTarea { get; set; } = "";
