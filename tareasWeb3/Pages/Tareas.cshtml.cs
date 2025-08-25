@@ -3,81 +3,80 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Linq;
 using tareasWeb3.Models;
 
 namespace tareasWeb3.Pages
 {
     public class TareasModel : PageModel
     {
-        // lista que se muestra en la tabla
         public List<Tarea> Tareas { get; set; } = new();
 
-        // paginacion
         public int PageNumber { get; set; }
         public int TotalPages { get; set; }
 
-        // selector de tamano
         [BindProperty(SupportsGet = true)]
         public string? SelectedSize { get; set; } = "m";
         public string TableSizeClass =>
             SelectedSize == "s" ? "table-sm" :
             SelectedSize == "l" ? "table-lg" : "";
 
-        // filtros
         [BindProperty(SupportsGet = true)]
-        public string? FilterEstado { get; set; }   // ejemplo Pendiente En curso Finalizado
-        [BindProperty(SupportsGet = true)]
-        public string? Q { get; set; }              // texto a buscar en nombre
+        public string? FilterEstado { get; set; }
 
-        // para llenar combo de estados
+        [BindProperty(SupportsGet = true)]
+        public string? Q { get; set; }
+
         public List<string> Estados { get; set; } = new();
 
         private readonly IWebHostEnvironment _env;
-        public TareasModel(IWebHostEnvironment env)
-        {
-            _env = env;
-        }
+        public TareasModel(IWebHostEnvironment env) => _env = env;
 
         public void OnGet(int pageNumber = 1)
         {
-            // lee json
             var filePath = GetJsonPath();
             if (!System.IO.File.Exists(filePath))
             {
-                Tareas = new();
-                TotalPages = 1;
+                Estados = new List<string> { "Pendiente", "En curso", "Finalizado", "Cancelado" };
                 PageNumber = 1;
+                TotalPages = 1;
+                Tareas = new();
                 return;
             }
 
             var json = System.IO.File.ReadAllText(filePath);
 
-            // deserializa
             var allTareas = JsonSerializer.Deserialize<List<Tarea>>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             }) ?? new List<Tarea>();
 
-            // estados disponibles
-            Estados = allTareas
-                .Select(t => t.Estado?.Trim() ?? "")
-                .Where(s => !string.IsNullOrWhiteSpace(s))
+            var baseEstados = new[] { "Pendiente", "En curso", "Finalizado", "Cancelado" };
+            Estados = baseEstados
+                .Union(
+                    allTareas
+                        .Select(t => t.Estado?.Trim() ?? "")
+                        .Where(s => !string.IsNullOrWhiteSpace(s)),
+                    StringComparer.OrdinalIgnoreCase
+                )
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(s => s)
+                .OrderBy(s => s == "Pendiente" ? 0
+                             : s == "En curso" ? 1
+                             : s == "Finalizado" ? 2
+                             : s == "Cancelado" ? 3
+                             : 99)
                 .ToList();
 
-            // aplica filtros
             IEnumerable<Tarea> filtered = allTareas;
 
-            // por estado
             if (!string.IsNullOrWhiteSpace(FilterEstado) &&
                 !string.Equals(FilterEstado, "todos", StringComparison.OrdinalIgnoreCase))
             {
+                var estado = FilterEstado.Trim();
                 filtered = filtered.Where(t =>
-                    string.Equals(t.Estado?.Trim(), FilterEstado.Trim(), StringComparison.OrdinalIgnoreCase));
+                    string.Equals(t.Estado?.Trim(), estado, StringComparison.OrdinalIgnoreCase));
             }
 
-            // por texto en nombre
             if (!string.IsNullOrWhiteSpace(Q))
             {
                 var q = Q.Trim();
@@ -86,8 +85,7 @@ namespace tareasWeb3.Pages
                     t.NombreTarea.Contains(q, StringComparison.OrdinalIgnoreCase));
             }
 
-            // paginado
-            int pageSize = 10; // puedes ajustar
+            const int pageSize = 10;
             int total = filtered.Count();
 
             TotalPages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
@@ -99,8 +97,6 @@ namespace tareasWeb3.Pages
                 .ToList();
         }
 
-        // -------------------- CREAR TAREA --------------------
-
         [BindProperty]
         public NuevaTareaInput NuevaTarea { get; set; } = new();
 
@@ -110,28 +106,24 @@ namespace tareasWeb3.Pages
             public string? NombreTarea { get; set; }
 
             [Required, DataType(DataType.Date)]
-            public DateTime? Fecha { get; set; } // viene del <input type="date">
+            public DateTime? Fecha { get; set; }
 
             [Required]
             public string? Estado { get; set; } // Pendiente | En curso | Finalizado | Cancelado
         }
 
-        [ValidateAntiForgeryToken]
+        // Quitar [ValidateAntiForgeryToken] en Razor Pages handlers
         public IActionResult OnPostCreate()
         {
             if (!ModelState.IsValid)
             {
-                // Recargar datos para que la vista se renderice correctamente
                 OnGet(1);
                 return Page();
             }
 
             var listado = CargarTareas();
-
-            // Convertimos la fecha al formato de tu JSON dd/MM/yyyy
             var fecha = NuevaTarea.Fecha!.Value.ToString("dd/MM/yyyy");
 
-            // Insertar al inicio para que aparezca arriba
             listado.Insert(0, new Tarea
             {
                 NombreTarea = NuevaTarea.NombreTarea!.Trim(),
@@ -143,17 +135,15 @@ namespace tareasWeb3.Pages
 
             TempData["ok"] = "Tarea creada correctamente";
 
-            // Volvemos a GET manteniendo filtros/tamaño/búsqueda.
             return RedirectToPage(new
             {
-                pageNumber = 1,                  // o PageNumber si quieres mantener la página actual
+                pageNumber = 1,
                 SelectedSize,
                 FilterEstado,
                 Q
             });
         }
 
-        // Utilidades JSON
         private string GetJsonPath()
             => Path.Combine(_env.WebRootPath, "data", "tareas.json");
 
@@ -162,8 +152,10 @@ namespace tareasWeb3.Pages
             var path = GetJsonPath();
             if (!System.IO.File.Exists(path)) return new List<Tarea>();
             var json = System.IO.File.ReadAllText(path);
-            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            return JsonSerializer.Deserialize<List<Tarea>>(json, opts) ?? new List<Tarea>();
+            return JsonSerializer.Deserialize<List<Tarea>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new List<Tarea>();
         }
 
         private void GuardarTareas(List<Tarea> tareas)

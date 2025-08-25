@@ -1,9 +1,5 @@
 [
-  {
-    "NombreTarea": "sapita",
-    "FechaVencimiento": "22/08/2025",
-    "Estado": "Pendiente"
-  },
+
   {
     "NombreTarea": "Escribir informe semanal",
     "FechaVencimiento": "25/08/2025",
@@ -168,5 +164,21 @@
     "NombreTarea": "Buscar nuevas recetas",
     "FechaVencimiento": "20/08/2025",
     "Estado": "Pendiente"
+  },
+  {
+    "NombreTarea": "Reprogramar cita de odontología",
+    "FechaVencimiento": "26/08/2025",
+    "Estado": "Cancelado"
+  },
+  {
+    "NombreTarea": "Comprar repuestos de impresora",
+    "FechaVencimiento": "27/08/2025",
+    "Estado": "Cancelado"
+  },
+  {
+    "NombreTarea": "Inscribirse al taller de UI/UX",
+    "FechaVencimiento": "28/08/2025",
+    "Estado": "Cancelado"
   }
 ]
+

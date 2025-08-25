@@ -29,9 +29,8 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0">Tareas Asignadas</h3>
 
-                <!-- Contenedor derecho: selector de tamaño + botón Crear -->
+                <!-- Selector de tamaño + botón Crear -->
                 <div class="d-flex align-items-center gap-2">
-                    <!-- selector de tamano sin C# en option -->
                     <form method="get" class="d-flex align-items-center gap-2">
                         <input type="hidden" name="FilterEstado" value="@Model.FilterEstado" />
                         <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
@@ -48,7 +47,6 @@
                         </select>
                     </form>
 
-                    <!-- BOTÓN CREAR TAREA -->
                     <button class="btn btn-primary d-flex align-items-center gap-2"
                             type="button"
                             data-bs-toggle="offcanvas"
@@ -60,7 +58,7 @@
                 </div>
             </div>
 
-            <!-- filtro por estado -->
+            <!-- Filtros -->
             <form method="get" class="row g-3 mb-3">
                 <input type="hidden" name="SelectedSize" value="@Model.SelectedSize" />
                 <input type="hidden" name="pageNumber" value="1" />
@@ -84,9 +82,30 @@
                 <div class="col-sm-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Filtrar</button>
                 </div>
+
+                <!-- Botones de filtro rápido -->
+                <div class="col-sm-4 d-flex align-items-end gap-2">
+                    <a class="btn btn-outline-success w-100"
+                       asp-page="/Tareas"
+                       asp-route-pageNumber="1"
+                       asp-route-SelectedSize="@Model.SelectedSize"
+                       asp-route-FilterEstado="Finalizado"
+                       asp-route-Q="@Model.Q">
+                        Solo finalizadas
+                    </a>
+
+                    <a class="btn btn-outline-danger w-100"
+                       asp-page="/Tareas"
+                       asp-route-pageNumber="1"
+                       asp-route-SelectedSize="@Model.SelectedSize"
+                       asp-route-FilterEstado="Cancelado"
+                       asp-route-Q="@Model.Q">
+                        Solo canceladas
+                    </a>
+                </div>
             </form>
 
-            <!-- tabla -->
+            <!-- Tabla -->
             <table class="table table-bordered table-striped mt-2 @Model.TableSizeClass">
                 <thead class="table-light">
                     <tr>
@@ -130,7 +149,7 @@
                 </tbody>
             </table>
 
-            <!-- paginacion -->
+            <!-- Paginacion-->
             <nav>
                 <ul class="pagination">
                     <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
@@ -175,7 +194,7 @@
     </div>
 </div>
 
-
+<!-- Offcanvas crear tarea -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="ocNuevaTarea" aria-labelledby="ocNuevaTareaLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="ocNuevaTareaLabel">Nueva tarea</h5>
@@ -217,5 +236,3 @@
         </form>
     </div>
 </div>
-
-
